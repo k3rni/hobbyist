@@ -3,7 +3,7 @@ Wymagania
 
 Baza danych składa się z dwóch tabel. W jednej z nich są użytkownicy z polami
 imię, nazwisko, hobby, datą utworzenia rekordu i modyfikacji. Druga tabela
-zawiera pola: uuid oraz secret_token. Należy napisać aplikację, która będzie
+zawiera pola: *uuid* oraz *secret_token*. Należy napisać aplikację, która będzie
 obsługiwać standardowe RESTowe API, posiadające zasób users i odpowiadające w
 formacie json.  Przy czym metoda GET powinna pokazywać tylko imię, nazwisko i
 hobby uzytkownika (bez daty utworzenia i modyfikacji), oraz być jedyną metoda
@@ -13,7 +13,7 @@ dodatkowych parametrów: uuid i pasującego secret_token.
 Uruchamianie
 ------------
 
-Instrukcja uruchamiania:
+Pobranie i instalacja gemów (wymagany bundler):
 
     $ git clone git://github.com/k3rni/hobbyist
     $ cd hobbyist
@@ -39,7 +39,7 @@ O implementacji
 Trzymając się specyfikacji słowo w słowo, zakładam nietypowo, że kluczem
 głównym tabeli users jest para (imię, nazwisko), i tak projektuję model oraz
 ścieżki (również tabelę autoryzacji). Wymaga to również użycia gema
-composite_primary_keys.
+*composite_primary_keys*.
 
 Ścieżki odpowiadają modelowi REST:
 
@@ -58,7 +58,7 @@ statusem 404, dotyczy to operacji show, update, destroy.
 
 Dodatkowo, metody create i update potrafią przyjmować dane w formacie JSON,
 odpowiednio deserializując je z treści zapytania. Musi ono wówczas zawierać
-nagłówek "Content-Type: application/json".
+nagłówek `Content-Type: application/json`.
 
 Autoryzacja jest zbudowana w najprostszy możliwy sposób, bez użycia dodatkowych bibliotek.
 Korzystając z możliwości sinatry, dodaję to jako warunek, który mogę potem zastosować
@@ -66,9 +66,9 @@ jako część definicji routa. Takie rozwiązanie wybrałem ze względu na brak 
 zarządzania autoryzacją oraz brak persystentnych sesji. W innym przypadku warto byłoby
 zastosować gotowe rozwiązanie, jak np. Warden.
 
-Autoryzacja może nastąpić na dwa sposoby: według dokumentacji - przez podanie w
+Autoryzacja może nastąpić na dwa sposoby: według specyfikacji - przez podanie w
 GET parametrów uuid i secret_token, oraz poprzez podanie ich w autoryzacji
-Basic - nagłówku Authorization.
+HTTP Basic - nagłówku Authorization.
 
 Kod zawiera testy funkcjonalne (samych metod REST) oraz integracyjne (testujące autoryzację).
 Pokrycie testami wynosi 100%, zmierzone przez simplecov.
