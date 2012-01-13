@@ -55,7 +55,8 @@ class RestrictedEncoder
     class << self
         def encode object
             if object.is_a? Array
-                object.map { |item| self.encode(item) }.to_json
+                # wiadomo że userów - tylko takie podajemy tu
+                object.map { |user| user.as_json :only => [:imie, :nazwisko, :hobby] }.to_json
             elsif object.is_a? User
                 object.to_json :only => [:imie, :nazwisko, :hobby]
             end

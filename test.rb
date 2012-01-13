@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'simplecov'
 SimpleCov.start { add_filter "setup.rb" } # nie nalezy do testow, tylko konfiguracji
 require './app'
@@ -49,15 +50,17 @@ class AppTest < Test::Unit::TestCase
     def test_index
         get '/users'
         assert_valid_json
-        assert @data.is_a?(Array), "Index didn't return an array"
+        assert @data.is_a?(Array)
+        assert_equal 2, @data.size
+        assert_equal %w(yehuda yukihiro), @data.map { |row| row['user']['imie'] }.sort
     end
 
     def test_show_existing
         get "/users/#{@yehuda.imie}/#{@yehuda.nazwisko}"
-        assert last_response.ok?, "Did not find existing user"
+        assert last_response.ok?
         assert_valid_json
-        assert @data.is_a?(Hash), "Show didn't return a hash"
-        assert_equal %w(hobby imie nazwisko), @data['user'].keys.sort, 'Nieprawidlowe klucze w wyniku'
+        assert @data.is_a?(Hash)
+        assert_equal %w(hobby imie nazwisko), @data['user'].keys.sort, 'Nieprawidłowe klucze w wyniku show'
         assert_equal @yehuda.imie, @data['user']['imie']
         assert_equal @yehuda.nazwisko, @data['user']['nazwisko']
     end
@@ -67,7 +70,7 @@ class AppTest < Test::Unit::TestCase
             User.find('jozef', 'oleksy')
         end
         get '/users/jozef/oleksy'
-        assert last_response.not_found?, "Nonexistent user should return 404, was #{last_response.status} #{last_response.body}"
+        assert last_response.not_found?
     end
 
     def test_create_urlencoded
@@ -81,7 +84,7 @@ class AppTest < Test::Unit::TestCase
         post "#{path}?#{@auth}", data
 
         assert_equal 201, last_response.status
-        assert_equal count + 1, User.all.count, "User wasn't created"
+        assert_equal count + 1, User.all.count
         assert_nothing_raised do
             @u = User.find('jozef', 'oleksy')
         end
@@ -106,7 +109,7 @@ class AppTest < Test::Unit::TestCase
         json_request 'POST', "/users?#{@auth}", params
 
         assert_equal 201, last_response.status
-        assert_equal count + 1, User.all.count, "User wasn't created"
+        assert_equal count + 1, User.all.count
         assert_nothing_raised do
             User.find('jozef', 'oleksy')
         end
@@ -139,7 +142,7 @@ class AppTest < Test::Unit::TestCase
         end
 
         put path, 'user[hobby]=donuts&user[imie]=wy&user[nazwisko]=cats'
-        assert last_response.ok?, "#{last_response.status}"
+        assert last_response.ok?
         assert_equal count, User.all.count
         assert_nothing_raised do
             @y = User.find('wy', 'cats')
@@ -173,7 +176,7 @@ class AppTest < Test::Unit::TestCase
 
         data = {:user => {:imie => 'wy', :nazwisko => 'cats', :hobby => 'donuts'}}
         json_request 'PUT', path, data
-        assert last_response.ok?, "#{last_response.status}"
+        assert last_response.ok?
         assert_equal count, User.all.count
         assert_nothing_raised do
             @t = User.find('wy', 'cats')
@@ -196,7 +199,7 @@ class AppTest < Test::Unit::TestCase
 
         # pozostałe już forbidden
         post '/users'
-        assert last_response.forbidden?, last_response.inspect
+        assert last_response.forbidden?
 
         put path, 'hobby=hacking'
         assert last_response.forbidden?
@@ -206,7 +209,7 @@ class AppTest < Test::Unit::TestCase
 
         authpath = "#{path}?uuid=wiceadmin&secret_token=2222"
         delete authpath
-        assert last_response.forbidden?, last_response.inspect
+        assert last_response.forbidden?
     end
 
     def test_delete_httpauth
@@ -214,7 +217,7 @@ class AppTest < Test::Unit::TestCase
         header "Authorization", "Basic #{@www_auth}"
         count = User.all.count
         delete path
-        assert last_response.ok?, last_response.inspect
+        assert last_response.ok?
         assert_equal count - 1, User.all.count
         assert_raises(ActiveRecord::RecordNotFound) do
             User.find('yehuda', 'katz')
@@ -226,7 +229,7 @@ class AppTest < Test::Unit::TestCase
         header "Authorization", "Basic #{@bad_www_auth}"
         count = User.all.count
         delete path
-        assert last_response.forbidden?, last_response.inspect
+        assert last_response.forbidden?
         assert_equal count, User.all.count
         assert_nothing_raised do
             User.find('yehuda', 'katz')
@@ -237,7 +240,7 @@ class AppTest < Test::Unit::TestCase
         path = "/users/yehuda/katz?#{@auth}"
         count = User.all.count
         delete path
-        assert last_response.ok?, "#{last_response.inspect}"
+        assert last_response.ok?
         assert_equal count - 1, User.all.count
         assert_raises(ActiveRecord::RecordNotFound) do
             User.find('yehuda', 'katz')
