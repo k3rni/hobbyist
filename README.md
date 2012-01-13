@@ -1,3 +1,6 @@
+Wymagania
+=========
+
 Baza danych składa się z dwóch tabel. W jednej z nich są użytkownicy z polami
 imię, nazwisko, hobby, datą utworzenia rekordu i modyfikacji. Druga tabela
 zawiera pola: uuid oraz secret_token. Należy napisać aplikację, która będzie
@@ -7,6 +10,32 @@ hobby uzytkownika (bez daty utworzenia i modyfikacji), oraz być jedyną metoda
 ogólnie dostępną (bez uwierzytelniania). Pozostałe metody wymagają podania
 dodatkowych parametrów: uuid i pasującego secret_token.
 
+Uruchamianie
+------------
+
+Instrukcja uruchamiania:
+
+    $ git clone git://github.com/k3rni/hobbyist
+    $ cd hobbyist
+    $ bundle install
+
+Uruchamianie testów:
+
+    $ ruby test.rb 
+
+Wygenerowanie bazy danych (przed uruchomieniem aplikacji):
+
+    $ ruby setup.rb
+
+Uruchomienie:
+
+    $ ruby app.rb
+
+Jeśli ruby nie potrafi znaleźć gemów, zastępujemy go w poleceniach przez `bundle exec ruby`.
+
+O implementacji
+---------------
+
 Trzymając się specyfikacji słowo w słowo, zakładam nietypowo, że kluczem
 głównym tabeli users jest para (imię, nazwisko), i tak projektuję model oraz
 ścieżki (również tabelę autoryzacji). Wymaga to również użycia gema
@@ -14,11 +43,11 @@ composite_primary_keys.
 
 Ścieżki odpowiadają modelowi REST:
 
-index     GET /users
-show      GET /users/imie/nazwisko
-create  * POST /users
-update  * PUT /users/imie/nazwisko
-destroy * DELETE /users/imie/nazwisko
+    index     GET /users
+    show      GET /users/imie/nazwisko
+    create  * POST /users
+    update  * PUT /users/imie/nazwisko
+    destroy * DELETE /users/imie/nazwisko
 
 Zapytania oznaczone gwiazdką wymagają autoryzacji.
 
