@@ -19,8 +19,8 @@ set :auth do |required|
     condition do
         return unless required
         if params["uuid"] && params["secret_token"]
-            auth = Authdata.where(:uuid => params["uuid"], 
-                                  :secret_token => params["secret_token"]).first
+            auth = Authdata.where(uuid: params["uuid"], 
+                                  secret_token: params["secret_token"]).first
             halt 403 unless auth
         else
             httpauth = Rack::Auth::Basic::Request.new(env)
@@ -56,9 +56,9 @@ class RestrictedEncoder
         def encode object
             if object.is_a? Array
                 # wiadomo że userów - tylko takie podajemy tu
-                object.map { |user| user.as_json :only => [:imie, :nazwisko, :hobby] }.to_json
+                object.map { |user| user.as_json(only: [:imie, :nazwisko, :hobby]) }.to_json
             elsif object.is_a? User
-                object.to_json :only => [:imie, :nazwisko, :hobby]
+                object.to_json only: [:imie, :nazwisko, :hobby]
             end
         end
     end
@@ -68,11 +68,11 @@ end
 
 # index - Pobierz listę użytkowników, bez autoryzacji (GET, więc spełnia wymagania)
 get '/users' do
-    json(User.all, :encoder => RestrictedEncoder)
+    json(User.all, encoder: RestrictedEncoder)
 end
 
 # create
-post '/users', :auth => true do 
+post '/users', auth: true do 
     data = request.params['user']
     u = User.create(data)
     if u.save
@@ -92,12 +92,12 @@ USER_PATH = '/users/:imie/:nazwisko'
 # show - pobierz pojedynczego użytkownika, również bez autoryzacji.
 get USER_PATH do
     u = User.find(params[:imie], params[:nazwisko])
-    json u, :encoder => RestrictedEncoder
+    json u, encoder: RestrictedEncoder
 end
 
 
 # update
-put USER_PATH, :auth => true do 
+put USER_PATH, auth: true do 
     u = User.find(params[:imie], params[:nazwisko])
     data = request.params['user']
     u.update_attributes data
@@ -109,7 +109,7 @@ put USER_PATH, :auth => true do
 end
 
 # dstroy
-delete USER_PATH, :auth => true do 
+delete USER_PATH, auth: true do 
     u = User.find(params[:imie], params[:nazwisko])
     u.destroy
     [200, 'Deleted']

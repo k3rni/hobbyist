@@ -7,10 +7,7 @@ require 'test/unit'
 require 'rack/test'
 
 # nadpisz do testów
-ActiveRecord::Base.establish_connection(
-    :adapter => 'sqlite3', 
-    :database => ":memory:"
-)
+ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ":memory:")
 setup_db
 
 class AppTest < Test::Unit::TestCase
@@ -44,7 +41,7 @@ class AppTest < Test::Unit::TestCase
     end
 
     def json_request method, url, data
-        request url, :input => data.to_json, :method => method
+        request url, input: data.to_json, method: method
     end
 
     def test_index
@@ -67,26 +64,26 @@ class AppTest < Test::Unit::TestCase
 
     def test_show_absent
         assert_raises(ActiveRecord::RecordNotFound) do
-            User.find('jozef', 'oleksy')
+            User.find('david', 'heineman')
         end
-        get '/users/jozef/oleksy'
+        get '/users/david/heineman'
         assert last_response.not_found?
     end
 
     def test_create_urlencoded
         count = User.all.count
         assert_raises(ActiveRecord::RecordNotFound) do
-            User.find('jozef', 'oleksy')
+            User.find('david', 'heineman')
         end
 
         path = '/users'
-        data = 'user[imie]=jozef&user[nazwisko]=oleksy&user[hobby]=politykowanie'
+        data = 'user[imie]=david&user[nazwisko]=heineman&user[hobby]=rails'
         post "#{path}?#{@auth}", data
 
         assert_equal 201, last_response.status
         assert_equal count + 1, User.all.count
         assert_nothing_raised do
-            @u = User.find('jozef', 'oleksy')
+            @u = User.find('david', 'heineman')
         end
         get path
         assert last_response.ok?
@@ -100,18 +97,18 @@ class AppTest < Test::Unit::TestCase
     def test_create_json
         count = User.all.count
         assert_raises(ActiveRecord::RecordNotFound) do
-            User.find('jozef', 'oleksy')
+            User.find('david', 'heineman')
         end
 
         path = '/users'
         header "Content-Type", "application/json"
-        params = {:user => {:imie => 'jozef', :nazwisko => 'oleksy', :hobby => 'polityka'}}
+        params = {user: {imie: 'david', nazwisko: 'heineman', hobby: 'rails'}}
         json_request 'POST', "/users?#{@auth}", params
 
         assert_equal 201, last_response.status
         assert_equal count + 1, User.all.count
         assert_nothing_raised do
-            User.find('jozef', 'oleksy')
+            User.find('david', 'heineman')
         end
         get path
         assert last_response.ok?
